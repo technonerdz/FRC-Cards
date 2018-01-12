@@ -1,7 +1,7 @@
 <style>
 table.matchresults {
-	color: #333; /* Lighten up font color */
-  font-family: Helvetica, Arial, sans-serif; /* Nicer font */
+	color: #333;
+  font-family: Helvetica, Arial, sans-serif;
 	table-layout: fixed;
   border-collapse: collapse;
   border-spacing: 0;
@@ -14,42 +14,43 @@ table.matchresults {
 th.teams {
 	background: #F3F3F3;
 	font-weight: bold;
-	text-align: center; /* Center our text */
+	text-align: center;
 	width: 60px;
 }
 
 th.score {
 	background: #F3F3F3;
 	font-weight: bold;
-	text-align: center; /* Center our text */
+	text-align: center;
 	width: 45px;
 }
 
 td.blue {
 	background: #eef;
-	text-align: center; /* Center our text */
+	text-align: center;
 }
 
 td.red {
 	background: #fee;
-	text-align: center; /* Center our text */
+	text-align: center;
 }
 
 td.bluescore {
-	background: #ddf; /* Light grey background */
+	background: #ddf;
 	font-weight: bold;
-	text-align: center; /* Center our text */
+	text-align: center;
 	width: 50px;
 }
 
 td.redscore {
-	background: #fdd; /* Light grey background */
+	background: #fdd;
 	font-weight: bold;
-	text-align: center; /* Center our text */
+	text-align: center;
 	width: 50px;
 }
-td, th { border: 1px solid #CCC; } /* Make cells a bit taller */
+td, th { border: 1px solid #CCC; }
 </style>
+
 
 <table class="matchresults">
 <tr>
@@ -59,15 +60,73 @@ td, th { border: 1px solid #CCC; } /* Make cells a bit taller */
 </b>
 </tr>
 <tr>
- <td class="red">0</td>
- <td class="red">0</td>
- <td class="red">0</td>
- <td class="redscore">1</td>
+ <td class="red" id="r1">0</td>
+ <td class="red" id="r2">0</td>
+ <td class="red" id="r3">0</td>
+ <td class="redscore" id="rs">0</td>
 </tr>
 <tr>
- <td class="blue">0</td>
- <td class="blue">0</td>
- <td class="blue">0</td>
- <td class="bluescore">1</td>
+  <td class="blue" id="b1">0</td>
+  <td class="blue" id="b2">0</td>
+  <td class="blue" id="b3">0</td>
+  <td class="bluescore" id="bs">0</td>
 </tr>
 </table>
+
+<script>
+
+var query_string = location.search;
+query_string = query_string.replace('?', '&');
+var parsed_qs = parse_query_string(query_string);
+var matchkey = parsed_qs.m;
+
+var matchesreq = new XMLHttpRequest();
+matchesreq.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status != 404) {
+    matchresp = JSON.parse(this.responseText);
+
+		var rt1 = matchresp.alliances.red.team_keys[0];
+		var rt2 = matchresp.alliances.red.team_keys[1];
+		var rt3 = matchresp.alliances.red.team_keys[2];
+
+		var bt1 = matchresp.alliances.blue.team_keys[0];
+		var bt2 = matchresp.alliances.blue.team_keys[1];
+		var bt3 = matchresp.alliances.blue.team_keys[2];
+
+    document.getElementById('r1').innerHTML = rt1.replace("frc", "");
+    document.getElementById('r2').innerHTML = rt2.replace("frc", "");
+    document.getElementById('r3').innerHTML = rt3.replace("frc", "");
+    document.getElementById('rs').innerHTML = matchresp.alliances.red.score;
+
+    document.getElementById('b1').innerHTML = bt1.replace("frc", "");
+    document.getElementById('b2').innerHTML = bt2.replace("frc", "");
+    document.getElementById('b3').innerHTML = bt3.replace("frc", "");
+    document.getElementById('bs').innerHTML = matchresp.alliances.blue.score;
+  }
+};
+matchesreq.open('GET', 'https://www.thebluealliance.com/api/v3/match/' + matchkey + '/simple?X-TBA-Auth-Key=DX5fMYqKmB5adChhipIMdd1F9UIZixRo1dC9GBSMLNNbwdGYzVdBnimhdc4h11VW');
+matchesreq.send();
+
+
+
+
+function parse_query_string(query) {
+  var vars = query.split("&");
+  var query_string = {};
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split("=");
+    // If first entry with this name
+    if (typeof query_string[pair[0]] === "undefined") {
+      query_string[pair[0]] = decodeURIComponent(pair[1]);
+      // If second entry with this name
+    } else if (typeof query_string[pair[0]] === "string") {
+      var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+      query_string[pair[0]] = arr;
+      // If third or later entry with this name
+    } else {
+      query_string[pair[0]].push(decodeURIComponent(pair[1]));
+    }
+  }
+  return query_string;
+}
+</script>
