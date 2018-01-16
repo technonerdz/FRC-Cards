@@ -37,14 +37,12 @@ td.red {
 
 td.bluescore {
 	background: #ddf;
-	font-weight: bold;
 	text-align: center;
 	width: 50px;
 }
 
 td.redscore {
 	background: #fdd;
-	font-weight: bold;
 	text-align: center;
 	width: 50px;
 }
@@ -80,6 +78,8 @@ query_string = query_string.replace('?', '&');
 var parsed_qs = parse_query_string(query_string);
 var matchkey = parsed_qs.m;
 
+var redwin = false;
+
 var matchesreq = new XMLHttpRequest();
 matchesreq.onreadystatechange = function() {
   if (this.readyState == 4 && this.status != 404) {
@@ -102,6 +102,21 @@ matchesreq.onreadystatechange = function() {
     document.getElementById('b2').innerHTML = bt2.replace("frc", "");
     document.getElementById('b3').innerHTML = bt3.replace("frc", "");
     document.getElementById('bs').innerHTML = matchresp.alliances.blue.score;
+
+		redwin = (matchresp.alliances.red.score > matchresp.alliances.blue.score);
+
+		if (redwin){
+			document.getElementById('r1').style.fontWeight = "bold";
+			document.getElementById('r2').style.fontWeight = "bold";
+			document.getElementById('r3').style.fontWeight = "bold";
+			document.getElementById('rs').style.fontWeight = "bold";
+		}else {
+			document.getElementById('b1').style.fontWeight = "bold";
+			document.getElementById('b2').style.fontWeight = "bold";
+			document.getElementById('b3').style.fontWeight = "bold";
+			document.getElementById('bs').style.fontWeight = "bold";
+		}
+
   }
 };
 matchesreq.open('GET', 'https://www.thebluealliance.com/api/v3/match/' + matchkey + '/simple?X-TBA-Auth-Key=DX5fMYqKmB5adChhipIMdd1F9UIZixRo1dC9GBSMLNNbwdGYzVdBnimhdc4h11VW');
